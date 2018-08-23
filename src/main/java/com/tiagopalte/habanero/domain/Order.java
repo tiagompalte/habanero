@@ -43,9 +43,7 @@ public class Order implements Serializable {
 	@OneToMany(mappedBy="id.order")
 	private Set<OrderItem> items = new HashSet<>();
 	
-	public Order() {
-		
-	}
+	public Order() {}
 
 	public Order(Integer id, Date instant, Client client, Address deliveryAddress) {
 		super();
@@ -53,6 +51,14 @@ public class Order implements Serializable {
 		this.instant = instant;
 		this.client = client;
 		this.deliveryAddress = deliveryAddress;
+	}
+	
+	public double getTotalValue() {
+		double sum = 0.0;
+		if(items != null && !items.isEmpty()) {
+			sum = items.stream().mapToDouble(item -> item.getSubTotal()).sum();
+		}
+		return sum;
 	}
 
 	public Integer getId() {

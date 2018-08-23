@@ -11,10 +11,12 @@ import javax.persistence.MapsId;
 import javax.persistence.OneToOne;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.tiagopalte.habanero.domain.enums.PaymentState;
 
 @Entity
 @Inheritance(strategy=InheritanceType.JOINED)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")
 public abstract class Payment implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
@@ -29,14 +31,12 @@ public abstract class Payment implements Serializable {
 	@MapsId
 	private Order order;
 	
-	public Payment() {
-		
-	}
+	public Payment() {}
 
 	public Payment(Integer id, PaymentState state, Order order) {
 		super();
 		this.id = id;
-		this.state = state.getCode();
+		this.state = state == null ? null : state.getCode();
 		this.order = order;
 	}
 

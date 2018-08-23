@@ -5,9 +5,11 @@ import java.util.Date;
 import javax.persistence.Entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.tiagopalte.habanero.domain.enums.PaymentState;
 
 @Entity
+@JsonTypeName("paymentSlip")
 public class PaymentSlip extends Payment {
 	
 	private static final long serialVersionUID = 1L;
@@ -46,6 +48,16 @@ public class PaymentSlip extends Payment {
 
 	public void setPayDate(Date payDate) {
 		this.payDate = payDate;
+	}
+	
+	@Override
+	public int hashCode() {	
+		return super.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		return super.equals(obj);
 	}
 		
 }
