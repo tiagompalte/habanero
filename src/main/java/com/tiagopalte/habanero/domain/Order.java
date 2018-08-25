@@ -144,11 +144,11 @@ public class Order implements Serializable {
 		StringBuilder builder = new StringBuilder();
 		builder.append("Order number: ");
 		builder.append(getId());
-		builder.append(", Instant:");
+		builder.append(", Instant: ");
 		builder.append(sdf.format(getInstant()));
-		builder.append(", Client:");
+		builder.append(", Client: ");
 		builder.append(getClient().getName());
-		builder.append(", Payment state:");
+		builder.append(", Payment state: ");
 		builder.append(getPayment().getState().getDescription());
 		builder.append("\nDetails:\n");
 		for(OrderItem item : getItems()) {

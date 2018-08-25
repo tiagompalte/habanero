@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import com.tiagopalte.habanero.services.DBService;
+import com.tiagopalte.habanero.services.EmailService;
+import com.tiagopalte.habanero.services.MockEmailService;
 
 @Configuration
 @Profile("test")
@@ -20,6 +22,11 @@ public class TestConfig {
 	public boolean instanciateDatabase() throws ParseException {
 		dbService.instantiateTestDatabase();
 		return true;
+	}
+	
+	@Bean
+	public EmailService emailService() {
+		return new MockEmailService();
 	}
 	
 }

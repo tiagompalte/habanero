@@ -120,10 +120,10 @@ public class OrderItem implements Serializable {
 		builder.append(getProduct().getName());
 		builder.append(", Quantity: ");
 		builder.append(getQuantity());
-		builder.append(", Price per item");
+		builder.append(", Price per item: ");
 		builder.append(nf.format(getPrice()));
-		builder.append(", Subtotal:");
-		builder.append(getSubTotal());		
+		builder.append(", Subtotal: ");
+		builder.append(nf.format(getSubTotal()));		
 		builder.append("\n");
 		return builder.toString();
 	}	
