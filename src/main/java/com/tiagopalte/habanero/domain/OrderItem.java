@@ -16,8 +16,8 @@ public class OrderItem implements Serializable {
 	@EmbeddedId
 	private OrderItemPK id = new OrderItemPK();
 		
-	private double discount;
-	private Integer quantity;
+	private double discount;	
+	private Integer quantity;	
 	private double price;
 
 	public OrderItem() {}
@@ -31,7 +31,7 @@ public class OrderItem implements Serializable {
 	}
 	
 	public double getSubTotal() {
-		return (price - discount) * quantity;
+		return (price - discount) * getQuantity();
 	}
 
 	public OrderItemPK getId() {
@@ -51,6 +51,9 @@ public class OrderItem implements Serializable {
 	}
 
 	public Integer getQuantity() {
+		if(quantity == null) {
+			this.quantity = 1;
+		}
 		return quantity;
 	}
 

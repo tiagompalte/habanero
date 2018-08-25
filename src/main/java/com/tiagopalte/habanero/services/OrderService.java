@@ -62,7 +62,6 @@ public class OrderService {
 				item.setDiscount(0.0);
 				item.setPrice(productService.find(item.getProduct().getId()).getPrice());
 				item.setOrder(order);
-				item.setQuantity(1);
 			}
 			
 			orderItemRepository.saveAll(order.getItems());
