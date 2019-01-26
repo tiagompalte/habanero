@@ -2,6 +2,7 @@ package com.tiagopalte.habanero.resources.exceptions;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.tiagopalte.habanero.services.exceptions.AuthorizationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -35,6 +36,13 @@ public class ResourceExceptionHandler {
 		e.getBindingResult().getFieldErrors().forEach(
 				fieldError -> err.addError(fieldError.getField(), fieldError.getDefaultMessage()));		
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);		
+	}
+
+	@ExceptionHandler(AuthorizationException.class)
+	public ResponseEntity<StandardError> objectNotFound(AuthorizationException e, HttpServletRequest request) {
+
+		StandardError err = new StandardError(HttpStatus.FORBIDDEN.value(), e.getMessage(), System.currentTimeMillis());
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(err);
 	}
 
 }

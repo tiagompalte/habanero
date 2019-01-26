@@ -3,7 +3,13 @@ package com.tiagopalte.habanero.services;
 import java.util.Date;
 import java.util.Optional;
 
+import com.tiagopalte.habanero.domain.Client;
+import com.tiagopalte.habanero.security.UserSpringSecurity;
+import com.tiagopalte.habanero.services.exceptions.AuthorizationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,8 +81,18 @@ public class OrderService {
 			orderItemRepository.saveAll(order.getItems());
 			emailService.sendOrderConfirmationHtmlEmail(order);
 		}
-		
+
 		return order;
 	}
-	
+
+	public Page<Order> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
+		UserSpringSecurity user = UserService.authenticated();
+		if (user == null) {
+			throw new AuthorizationException("Acesso negado");
+		}
+		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
+		Client client =  clientService.find(user.getId());
+		return repo.findByClient(client, pageRequest);
+	}
+
 }

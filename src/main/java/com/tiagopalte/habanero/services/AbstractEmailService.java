@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import com.tiagopalte.habanero.domain.Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -18,43 +19,31 @@ import com.tiagopalte.habanero.domain.Order;
 public abstract class AbstractEmailService implements EmailService {
 	
 	@Value("${default.sender}")
-	private String sender;
-	
-	@Autowired
-	private TemplateEngine templateEngine;
-	
-	@Autowired
-	private JavaMailSender javaMailSender;
-	
+	protected String sender;
+
 	@Override
 	public void sendOrderConfirmationEmail(Order order) {
 		SimpleMailMessage sm = prepareSimpleMailMessageFromOrder(order);
 		sendEmail(sm);
 	}
-	
+
 	@Override
-	public void sendOrderConfirmationHtmlEmail(Order order) {
-		try {
-			MimeMessage mime = prepareMimeMessageFromOrder(order);
-			sendHtmlEmail(mime);
-		}
-		catch(MessagingException e) {
-			sendOrderConfirmationEmail(order);
-		}		
+	public void sendNewPasswordEmail(Client client, String newPass) {
+		SimpleMailMessage sm = prepareNewPasswordEmail(client, newPass);
+		sendEmail(sm);
 	}
 
-	protected MimeMessage prepareMimeMessageFromOrder(Order order) throws MessagingException {
-		MimeMessage mime = javaMailSender.createMimeMessage();
-		MimeMessageHelper mimeHelper = new MimeMessageHelper(mime, true);
-		mimeHelper.setTo(order.getClient().getEmail());
-		mimeHelper.setFrom(sender);
-		mimeHelper.setSubject("Pedido confirmado! Código: " + order.getId());
-		mimeHelper.setSentDate(new Date(System.currentTimeMillis()));
-		mimeHelper.setText(htmlFromTemplatePedido(order), true);
-		return mime;
+	private SimpleMailMessage prepareNewPasswordEmail(Client client, String newPass) {
+		SimpleMailMessage sm = new SimpleMailMessage();
+		sm.setTo(client.getEmail());
+		sm.setFrom(sender);
+		sm.setSubject("Solicitação de nova senha");
+		sm.setSentDate(new Date(System.currentTimeMillis()));
+		sm.setText("Nova senha: " + newPass);
+		return sm;
 	}
 
-	protected SimpleMailMessage prepareSimpleMailMessageFromOrder(Order order) {
+	private SimpleMailMessage prepareSimpleMailMessageFromOrder(Order order) {
 		SimpleMailMessage sm = new SimpleMailMessage();
 		sm.setTo(order.getClient().getEmail());
 		sm.setFrom(sender);
@@ -62,12 +51,6 @@ public abstract class AbstractEmailService implements EmailService {
 		sm.setSentDate(new Date(System.currentTimeMillis()));
 		sm.setText(order.toString());
 		return sm;
-	}
-	
-	protected String htmlFromTemplatePedido(Order order) {
-		Context context = new Context();
-		context.setVariable("order", order);
-		return templateEngine.process("email/orderConfirmation", context);
 	}
 
 }
