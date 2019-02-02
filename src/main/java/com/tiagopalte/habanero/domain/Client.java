@@ -45,7 +45,7 @@ public class Client implements Serializable {
 	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name="profiles")
 	private Set<Integer> profiles = new HashSet<>();
-	
+
 	public Client() {
 		addProfile(Profile.CLIENT);
 	}
@@ -165,5 +165,5 @@ public class Client implements Serializable {
 			return false;
 		return true;
 	}
-	
+
 }

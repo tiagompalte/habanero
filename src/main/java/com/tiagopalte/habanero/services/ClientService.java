@@ -1,9 +1,15 @@
 package com.tiagopalte.habanero.services;
 
+import java.awt.image.BufferedImage;
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
+import com.tiagopalte.habanero.domain.enums.Profile;
+import com.tiagopalte.habanero.security.UserSpringSecurity;
+import com.tiagopalte.habanero.services.exceptions.AuthorizationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +28,7 @@ import com.tiagopalte.habanero.repositories.AddressRepository;
 import com.tiagopalte.habanero.repositories.ClientRepository;
 import com.tiagopalte.habanero.services.exceptions.DataIntegrityException;
 import com.tiagopalte.habanero.services.exceptions.ObjectNotFoundException;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class ClientService {
@@ -34,8 +41,24 @@ public class ClientService {
 
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
+
+	@Autowired
+	private S3Service s3Service;
+
+	@Autowired
+	private ImageService imageService;
+
+	@Value("${img.prefix.client.profile}")
+	private String prefix;
+
+	@Value("${img.profile.size}")
+	private Integer size;
 	
 	public Client find(Integer id) {
+		UserSpringSecurity userSpringSecurity = UserService.authenticated();
+		if(userSpringSecurity == null || !userSpringSecurity.hasRole(Profile.ADMIN) && !id.equals(userSpringSecurity.getId())) {
+			throw new AuthorizationException("Acesso negado");
+		}
 		Optional<Client> client = repo.findById(id);
 		return client.orElseThrow(() -> new ObjectNotFoundException(
 				"Objeto não encontrado! Id: " + id + ", Tipo: " + Client.class.getName()));
@@ -99,5 +122,21 @@ public class ClientService {
 		newObj.setName(obj.getName());
 		newObj.setEmail(obj.getEmail());
 		return newObj;
+	}
+
+	public URI uploadProfilePicture(MultipartFile multipartFile) {
+
+		UserSpringSecurity userSpringSecurity = UserService.authenticated();
+		if(userSpringSecurity == null) {
+			throw new AuthorizationException("Acesso negado");
+		}
+
+		BufferedImage jpgImage = imageService.getJpgImageFromFile(multipartFile);
+		jpgImage = imageService.cropSquare(jpgImage);
+		jpgImage = imageService.resize(jpgImage, size);
+
+		String fileName = prefix + userSpringSecurity.getId() + ".jpg";
+
+		return s3Service.uploadFile(imageService.getInputStream(jpgImage, "jpg"), fileName, "image");
 	}
 }

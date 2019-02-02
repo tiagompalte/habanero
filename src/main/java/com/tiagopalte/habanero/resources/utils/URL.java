@@ -1,5 +1,6 @@
 package com.tiagopalte.habanero.resources.utils;
 
+import javax.validation.constraints.NotNull;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Arrays;
@@ -18,7 +19,7 @@ public class URL {
 		}
 	}
 	
-	public static List<Integer> decodeIntList(String s) {
+	public static List<Integer> decodeIntList(@NotNull String s) {
 		return Arrays.asList(s.split(",")).stream().map(value -> Integer.parseInt(value)).collect(Collectors.toList());
 	}
 	
