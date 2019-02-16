@@ -8,6 +8,7 @@ import java.util.Optional;
 import com.tiagopalte.habanero.domain.enums.Profile;
 import com.tiagopalte.habanero.security.UserSpringSecurity;
 import com.tiagopalte.habanero.services.exceptions.AuthorizationException;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -90,6 +91,22 @@ public class ClientService {
 
 	public List<Client> findAll() {
 		return repo.findAll();
+	}
+
+	public Client findByEamil(String email) {
+
+		UserSpringSecurity userSpringSecurity = UserService.authenticated();
+
+		if(userSpringSecurity == null || !userSpringSecurity.hasRole(Profile.ADMIN) && !email.equals(userSpringSecurity.getUsername())) {
+			throw new AuthorizationException("Acesso negado");
+		}
+
+		Client client = repo.findByEmail(email);
+		if(client == null) {
+			throw new ObjectNotFoundException("Objeto não encontrado! Id: " + userSpringSecurity.getId()
+													+ ", Tipo: " + Client.class.getName());
+		}
+		return client;
 	}
 	
 	public Page<Client> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
